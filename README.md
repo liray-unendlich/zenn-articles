@@ -7,9 +7,10 @@
  [手順](https://zenn.dev/zenn/articles/connect-to-github#2.-zenn%E3%81%AE%E3%83%80%E3%83%83%E3%82%B7%E3%83%A5%E3%83%9C%E3%83%BC%E3%83%89%E3%81%8B%E3%82%89%E9%80%A3%E6%90%BA%E3%81%99%E3%82%8B)  
 3. pnpmのインストール
  [手順](https://pnpm.io/ja/installation)  
-4. パッケージをインストール `pnpm i`
+4. パッケージをインストール `corepack enable pnpm && pnpm i --frozen-lockfile`
  [参考](https://zenn.dev/zenn/articles/install-zenn-cli)  
 
+**注意：個人リポジトリではarticles, imagesディレクトリ直下のみを編集可とする。パッケージやcicdまわり、READMEなどの大枠は[フォーク元](https://github.com/0xmakase/zenn-articles)での変更のみとする**  
 
 ## 記事作成/投稿手順
 ### STEP1. 記事タイトル(仮決め)・アウトラインの作成
