@@ -10,7 +10,8 @@
 4. パッケージをインストール `corepack enable pnpm && pnpm i --frozen-lockfile`
  [参考](https://zenn.dev/zenn/articles/install-zenn-cli)  
 
-**注意：個人リポジトリではarticles, imagesディレクトリ直下のみを編集可とする。パッケージやcicdまわり、READMEなどの大枠は[フォーク元](https://github.com/0xmakase/zenn-articles)での変更のみとする**  
+**注意：個人リポジトリではarticles, imagesディレクトリ直下のみを編集可とし、フォーク元に対してPRは行わないこと（各自の投稿データが混合しないようにするため）**
+**注意：パッケージやcicdまわり、READMEなどの大枠は[フォーク元](https://github.com/0xmakase/zenn-articles)での変更のみとし、各自のリポジトリでは`Sync fork`のみを行う**  
 
 ## 記事作成/投稿手順
 ### STEP1. 記事タイトル(仮決め)・アウトラインの作成
