@@ -1,0 +1,37 @@
+{
+	"filters": { "comments": true },
+	"rules": {
+		"max-ten": {
+      "max": 3,
+      "touten": "、",
+      "kuten": "。"
+    },
+		"preset-ja-technical-writing": true,
+		"preset-ja-spacing": true,
+		"spellcheck-tech-word": true,
+    "textlint-rule-no-dropping-the-ra": true,
+		"ja-space-around-code": true,
+		"no-mix-dearu-desumasu": {
+				"preferInHeader": "",
+				"preferInBody": "ですます",
+				"preferInList": "である",
+				"strict": true
+		},
+		"ja-space-between-half-and-full-width": {
+      "space": "always"
+  	},
+		"sentence-length": { "max": 120 },
+		"no-doubled-joshi": true,
+		"ja-no-abusage": true,
+		"no-mixed-zenkaku-and-hankaku-alphabet": true,
+		"no-doubled-conjunctive-particle-ga": true,
+		"no-doubled-conjunction": true,
+		"ja-no-mixed-period": true,
+		"ja-hiragana-keishikimeishi": true,
+		"ja-hiragana-fukushi": true,
+		"ja-hiragana-hojodoushi": true,
+		"@textlint-ja/no-synonyms": true,
+		"ja-no-inappropriate-words": true,
+		"ja-overlooked-typo": true
+	}
+}
