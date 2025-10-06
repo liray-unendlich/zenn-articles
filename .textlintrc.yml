@@ -1,0 +1,35 @@
+filters:
+  comments: true # コメント行・ブロックを無視
+
+rules:
+  max-ten: # 句読点（「、」「。」）の使用上限を制限
+    max: 3
+    touten: "、"
+    kuten: "。"
+  preset-ja-technical-writing: true # 技術文書向けの文体・表記ルールのプリセット
+  preset-ja-spacing: # 和文/欧文の空白・記号の間隔ルールのプリセット
+    ja-space-between-half-and-full-width: # 全角と半角の間のスペース有無（preset 内サブルールを上書き）
+      space: "always"
+  textlint-rule-no-dropping-the-ra: true # 「ら抜き言葉」を検出
+  ja-space-around-code: # インラインコードの前後スペースを強制
+    before: true
+    after: true
+  no-mix-dearu-desumasu: # 「である体/ですます体」の混在を防止
+    preferInHeader: "" # 見出しは指定なし
+    preferInBody: "ですます" # 本文はですます体
+    preferInList: "である" # 箇条書きはである体
+    strict: true
+  no-doubled-joshi: true # 連続する助詞の誤用を検出
+  ja-no-abusage: true # 誤用されやすい日本語表現を検出
+  no-mixed-zenkaku-and-hankaku-alphabet: true # 全角/半角アルファベットの混在を検出
+  no-doubled-conjunctive-particle-ga: true # 接続助詞「が」の重複を検出
+  no-doubled-conjunction: true # 接続詞の重複を検出
+  ja-no-mixed-period: true # 句点の混在（。と.など）を防止
+  ja-hiragana-keishikimeishi: true # 形式名詞のひらがな表記を推奨
+  ja-hiragana-fukushi: true # 副詞のひらがな表記を推奨
+  ja-hiragana-hojodoushi: true # 補助動詞のひらがな表記を推奨
+  "@textlint-ja/no-synonyms": true # 近義語の重複・冗長表現を指摘
+  ja-no-inappropriate-words: true # 不適切/避けたい表現を検出
+  ja-overlooked-typo: true # 見落としがちなタイポを検出
+
+
