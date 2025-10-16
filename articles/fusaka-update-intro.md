@@ -65,8 +65,6 @@ Ethereumで掲げられている、 [Lean Ethereum ロードマップ](https://l
 | サポート/情報提供EIP   | EIP-7910 | eth_config JSON-RPC メソッド                           | フォーク状況の確認・ノードのアップデート状況の確認を容易化                                                                                |
 | サポート/情報提供EIP   | EIP-7607 | FusakaスコープのメタEIP                                | Fusakaアップデートで扱う範囲・対象を定義                                                                                                  |
 
-### 実装タイミング・状況
-
 ## 新技術 **PeerDAS**
 
 ### PeerDASの概要
