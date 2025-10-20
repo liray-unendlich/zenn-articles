@@ -67,12 +67,13 @@ Ethereum で掲げられている、 [Lean Ethereum ロードマップ](https://
 | サポート/情報提供EIP   | EIP-7607 | FusakaスコープのメタEIP                                | Fusakaアップデートで扱う範囲・対象を定義                                                                                                  |
 
 ## 新技術 **PeerDAS**
+Fusaka アップデートにおける一番の目玉機能とされている、PeerDASがどのような技術であるのか、概要から説明します。
 
 ### PeerDASの概要
 
 **EIP-7594: PeerDAS（データ可用性サンプリング）** は、P2P ネットワーク層に DAS(データ可用性サンプリング)機能を統合する提案です。Pectra に含まれていた、EIP-4844（Proto-Danksharding）で導入された Blob データ(128 KB)の検証をしやすくすることを目的としています。ノード間で Blob 保管責任を分散させ、全ノードに全データをダウンロードさせることをコンセンサスルールとせず、確率的にデータ可用性を検証できるようにします。下図は、PeerDAS が実装されたのち、Blob ごとにどのようにノードが処理することになるかを示した概略図です。
 
-![PeerDAS概要](/images/peerdas01.png)
+![PeerDAS概要](/images/fusaka-update-intro/peerdas01.png)
 
 ### 技術的詳細
 
@@ -81,28 +82,33 @@ Ethereum で掲げられている、 [Lean Ethereum ロードマップ](https://
 
 - 1 ブロック内には最大 48 個の Blob データが存在する
 - 1Blob(最大 128kB)を 64 に分割し、セル(最大 2kB)と呼ぶ
-- セルあたりに消失訂正符号を付加し、合計 128 セルとする
+- Blobあたりのデータを符号化し、128セルのデータに変換
+※ 符号化とは、多項式化を指します。ここでは、Blob の64セルごとのデータ($[m_0, m_1, ..., m_63]$)を使って、次のような63次の多項式を生成します
+$$f(x) = m_0 + m_1 x + m_2 x^2 + ... m_63 x^63 = \sum_{i=0}^{63} m_i x^i$$
+この際、128セルのデータへの変換は、$[f(0), f(2), ..., f(127)]$ を行います。直観的にもイメージがつくように、未知数の数と同じだけの数の値(今回の場合は、64個)があれば、方程式として解くことができ、任意のxに対して、 $f(x)$ を求めることができます。その後、係数部分を抜き出して、元々の Blob データを復元できます。
+符号化を行うことにより、元々は 64セル のデータを逃さず取得しきらないと、 Blob を復元できなかったことに対して、 64/128 だけ取得できれば、 Blob を復元できるようになりました。
 
-以下の流れで説明します。
+符号化の説明は長かったと思いますが、PeerDASについて、処理を以下の流れで説明します。
 
 1. Blob の分割とノードへの割り当て
 1. コンセンサスのステップに従ったノードの PeerDAS 処理
 
 #### Blobの分割とノードへの割り当て
 
-1Blob あたり、2kB を 1 セルとして分割したのち、セルに同容量の消失訂正符号を付加することで、1Blob を 128 セル(2kB)に分割します。
+1Blob あたり、2kB を 1 セルとして分割したのち、符号化することで、1Blob を 128 セル(2kB)に分割します。
 例えば、6Blob がある場合は、全体を 6 行 128 列の行列として解釈されます。
 
-![Blobの分割](/images/peerdas02.png)
+![Blobの分割](/images/fusaka-update-intro/peerdas02.png)
 
-それぞれの列を Subnet と呼称し、ETH のステーク量に応じて、Blob の数ではなく指定された Subnet 数だけ、Blob データのダウンロード・検証・保管・P2P での発出が必要となります。なお、それぞれのノードの担当する subnet ID は、NodeID・担当 Subnet 数から導出されます。
+それぞれの列を Subnet と呼称し、 `担当 Subnet 数 = ノードの合計ステークETH / 32 ETH ` で計算される担当 Subnet 数のSubnetだけ、 Blob データのダウンロード・検証・保管・P2P での発出が必要となります。また、NodeIDからそのノードが処理する Subnet がリスト形式で一意に生成できる(`[1,2,3,...,128]`のようなリスト。最初の要素から用いる)ため、 NodeID と担当 Subnet 数がわかれば、そのノードがどの Subnet を処理する必要があるか、特定できます。
+わかりやすくするため、いくつかの合計ステークETHの段階に分けて、担当 Subnet 数を計算すると、以下のようになります：
 
 - フルノード(ステーク 0ETH)：4 Subnet
 - ソロバリデータ(ステーク 32ETH)：8 Subnet
 - 中型バリデータ(ステーク 2048ETH)：64 Subnet
-- 大型バリデータ(ステーク 4096ETH)：128 Subnet(全 Subnet)
+- 大型バリデータ(ステーク 4096ETH = 2048ETH のバリデータx 2 台)：128 Subnet(全 Subnet )
 
-全ての Subnet のデータを提供するノードを、PeerDAS について、Supernode と呼びます。また中型バリデータは 64 Subnet となっており、前提で述べたように、消失訂正符号を含んでいるため、中型バリデータ以上は全 Subnet データを復元できます。
+全ての Subnet のデータを提供するノードを、Supernode と呼びます。また中型バリデータは 64 Subnet となっており、前提で述べたように、符号化されているため、中型バリデータ以上は全 Subnet データを復元できます。
 
 #### コンセンサスのステップに従ったノードのPeerDAS処理
 
@@ -110,8 +116,7 @@ PeerDAS は、ビーコンチェーンで次のように処理される。フェ
 
 1. ブロックデータ生成・送信フェーズ(0~4 秒)
    ブロックプロポーザーは全ての Blob データを集約し、ブロックデータを生成します。その後、Gossip プロトコルでピアに共有します。ブロックプロポーザーが実際に行う作業は、以下の通りです。
-   - Blob データを blob 数の行×128 列の行列に変換する
-   - 64 列は Blob データ自体、64 列は消失訂正符号とする
+   - Blob データを 符号化し、 blob 数の行×128 列の行列に変換する
    - Blob ごとに KZG コミットメント・KZG 証明を発行する
    - ブロックデータ・Blob データをピアに送信する
 2. ブロックデータの受信・署名フェーズ(4~8 秒)
@@ -129,14 +134,14 @@ PeerDAS は、ビーコンチェーンで次のように処理される。フェ
 
 下図は上の計算手法において、ブロックプロポーザーが、3 秒以内に 8 つのピアに Blob データを送信することを想定したときの Blob 数ごとに必要となる帯域幅を示しています。
 
-![バリデータに必要となる帯域幅](/images/peerdas03.png)
+![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas03.png)
 
 ## 重要なEIPの詳細
 
 ### Blob容量上限の上昇・段階的なBlobアップデート（EIP-7892）
 
 Pectra の実装(2025/5/7)以降、blob のターゲット数（最低手数料で利用できる数）は 6 つとなっており、直近においては、相場の急変動もあり、90%以上の利用率となっています。追加の手数料を払うことで、最大 9 個までの blob を同一ブロックに格納できますが、さらに L2 が活発に利用されることを念頭に置けば、Blob の上限数・ターゲット数を継続的に増加させる必要があります。下の図は、4 月 14 日以降の日次での Blob 利用状況を示したものです。42K に赤線を入れているのは、blob のターゲット数×1 日の ethereum ブロック数での、1 日のターゲット blob 数を示すためです。徐々に日次でのターゲット blob 数には近づいてきているのが見て取れます。
-![Blob利用の推移](/images/dailyblobcount.png)
+![Blob利用の推移](/images/fusaka-update-intro/dailyblobcount.png)
 
 そこで今回実装されるのが、Blob のパラメータのみを更新する新たな種類のフォーク Blob Parameter Only Hardforks(BPO と呼ぶ)です。BPO により、以下のスケジュールで Blob のターゲット・最大値等のパラメータは段階的に上げられることになります。従来のハードフォークタイミングよりも高速にパラメータを上げていくことで、市場の拡大にも耐えつつ Fusaka アップデート・BPO の影響をモニタしながら、パラメータを上げていくためです。PeerDAS の実装に伴い、より Blob のターゲット・最大値を大きくできるようになったので、Fusaka アップデートに組み込まれています。
 
@@ -153,20 +158,20 @@ Pectra の実装(2025/5/7)以降、blob のターゲット数（最低手数料�
 ### ブロックガス上限の上昇/トランザクションガス制限（EIP-7935 & EIP-7825）
 
 Ethereum のブロックガス上限は、7 月 21 日に 45M まで引き上げられたばかりです。直近においては、平均ガス利用率は下図の通り 50%ほどとなっており、トランザクション処理には余裕がある現状です。
-![ガス利用量の推移](/images/average-gas-usage.png)
+![ガス利用量の推移](/images/fusaka-update-intro/average-gas-usage.png)
 
 しかしながら、ブロックによって利用率 90%を超えており、下図の 6 か月間の平均ガス価格からもわかるように、ガス代にも影響が出ていることに変わらず継続した取り組みとなっています。
-![ガス代の平均値推移](/images/average-gas-price.png)
+![ガス代の平均値推移](/images/fusaka-update-intro/average-gas-price.png)
 
-Fusaka アップデートでは、**ブロックガス上限を60Mに引き上げます**(EIP-7935)。当然のことながら、この引き上げにより、スループットの向上、ガス価格の安定化が見込まれます。
+Fusaka アップデートでは、**ブロックガス上限を60Mに引き上げます(EIP-7935)** 。当然のことながら、この引き上げにより、スループットの向上、ガス価格の安定化が見込まれます。
 
-このアップデートに組み合わせ、**トランザクションごとにガス制限を適用する(EIP-7825)**ことで、ブロックガス上限の緩和効果を最大化しようとしています。このガス制限は、単一のトランザクションで約 17M ガス(2^24 ガス、現行におけるブロックガスの 1/3 以上に相当)以上消費できないことをプロトコルのルールにすることで適用されます。
+このアップデートに組み合わせ、**トランザクションごとにガス制限を適用する(EIP-7825)** ことで、ブロックガス上限の緩和効果を最大化しようとしています。このガス制限は、単一のトランザクションで約 17M ガス(2^24 ガス、現行におけるブロックガスの 1/3 以上に相当)以上消費できないことをプロトコルのルールにすることで適用されます。
 
 コントラクト開発者においては、もしこの制限を超えるようなトランザクションを想定している場合は、コントラクトの再設計が必要となるので、注意してください。
 
 ### コントラクト容量上限の上昇（EIP-7907）
 
-EIP-170(2017 年)以降、スマートコントラクトのコードサイズ上限は**24KB**に制限されてきました。もともと、DoS 攻撃を防ぐ目的で上限を設定していましたが、dApps が複雑化してきていることもあり、開発者 UX の向上を目的としてコードサイズ上限を 48kB に上げることとなりました。
+EIP-170(2017 年)以降、スマートコントラクトのコードサイズ上限は **24KB** に制限されてきました。もともと、DoS 攻撃を防ぐ目的で上限を設定していましたが、dApps が複雑化してきていることもあり、開発者 UX の向上を目的としてコードサイズ上限を 48kB に上げることとなりました。
 
 コードサイズ上限が上がることで、開発者としては、これまで必要なかったコントラクトの分割によるコントラクト間呼び出し等の実装コストが下がります。
 
@@ -197,13 +202,13 @@ PeerDAS の実装により、Fusaka アップデート後では、ステーク�
 下図は、複数のステーク量タイプにおける、ストレージ利用(Blob 関連のみ)・ブロック提案時の帯域幅を示しています。
 
 320ETH をステークしているバリデータの Blob 数ごとのストレージ利用量
-![バリデータに必要となる帯域幅](/images/peerdas04.png)
+![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas04.png)
 1024ETH をステークしているバリデータの Blob 数ごとのストレージ利用量
-![バリデータに必要となる帯域幅](/images/peerdas05.png)
+![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas05.png)
 320ETH をステークしているバリデータの Blob 数ごとのブロック提案時のデータ送信速度
-![バリデータに必要となる帯域幅](/images/peerdas06.png)
+![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas06.png)
 1024ETH をステークしているバリデータの Blob 数ごとのブロック提案時のデータ送信速度
-![バリデータに必要となる帯域幅](/images/peerdas07.png)
+![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas07.png)
 
 ~320ETH までのステークにおいては、20Blob を超えたとしても、ストレージ利用量は Fusaka アップデートより依然として低くなっています。問題となるのは、ブロック提案時の帯域幅です。ブロック提案においては、全 Blob データを集約し、署名のためピアに提供しなければならないため、Blob 数が増えるほど帯域幅が必要となります。一部のクライアントにおいては、EL から Blob データを受信して処理するなどの仕組みが実装されていたり、`--max-blobs` のような上限 blob 数を既定するフラグを実装している場合があるため、帯域幅の制限が想定される場合は、クライアントの機能をよく確認されることをお勧めします。
 
@@ -241,14 +246,12 @@ Fusaka アップグレードは、Ethereum のスケーラビリティにおい�
 
 ### 参考文献
 
-本稿は、以下の参考資料を元に作成しています。詳しく理解したいほうは、こちらをご確認ください。
-**適切な引用形式に修正中です**
+本稿は、以下の参考資料を元に作成しています。詳しく理解したい方は、こちらをご確認ください。
 
-1. Emmanuel nalepa, <https://hackmd.io/@manunalepa/peerDAS/https%3A%2F%2Fhackmd.io%2Fe3UGeZ7cS92uk8b1SeVSyw#With-managed-validators-validator-custody>
-1. <https://ethereum.org/ja/roadmap/fusaka/peerdas/#peer-das>
-1. <https://blog.sigmaprime.io/peerdas-distributed-blob-building.html?utm_source=chatgpt.com>
-1. <https://ethpandaops.io/posts/fusaka-bandwidth-estimation>
-1. <https://ethpandaops.io/posts/fusaka-devnet-5-bpo-analysis>
-1. <https://medium.com/gaudiy-web3-lab/3ace46a3a9af>
-1. <https://www.paradigm.xyz/2023/04/mev-boost-ethereum-consensus>
-1. <https://hackmd.io/@manunalepa/peerDAS/https%3A%2F%2Fhackmd.io%2F%40manunalepa%2Frytr6f5zJe>
+1. Emmanuel Nalepa（HackMD）「PeerDAS」<https://hackmd.io/@manunalepa/peerDAS>（参照日：2025年10月20日）
+1. Ethereum Foundation（ethereum.org）「PeerDAS」<https://ethereum.org/ja/roadmap/fusaka/peerdas/#peer-das>（参照日：2025年10月20日）
+1. Sigma Prime（Sigma Prime Blog）「Scaling Ethereum with PeerDAS and Distributed Blob Building」<https://blog.sigmaprime.io/peerdas-distributed-blob-building.html>（参照日：2025年10月20日）
+1. EthPandaOps（EthPandaOps Blog）「Fusaka bandwidth estimation」<https://ethpandaops.io/posts/fusaka-bandwidth-estimation>（参照日：2025年10月20日）
+1. EthPandaOps（EthPandaOps Blog）「Fusaka devnet-5 BPO analysis」<https://ethpandaops.io/posts/fusaka-devnet-5-bpo-analysis>（参照日：2025年10月20日）
+1. Gaudiy Web3 Lab（Medium）「PeerDAS: Solving Ethereum’s Data Availability Problem」<https://medium.com/gaudiy-web3-lab/3ace46a3a9af>（参照日：2025年10月20日）
+1. Paradigm（Paradigm Blog）「Time, slots, and the ordering of events in Ethereum Proof-of-Stake」<https://www.paradigm.xyz/2023/04/mev-boost-ethereum-consensus>（参照日：2025年10月20日）
