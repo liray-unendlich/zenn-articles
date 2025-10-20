@@ -32,4 +32,3 @@ rules:
   ja-no-inappropriate-words: true # 不適切/避けたい表現を検出
   ja-overlooked-typo: true # 見落としがちなタイポを検出
 
-
