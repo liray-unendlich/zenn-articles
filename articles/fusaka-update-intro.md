@@ -67,7 +67,8 @@ Ethereum で掲げられている、 [Lean Ethereum ロードマップ](https://
 | サポート/情報提供EIP   | EIP-7607 | FusakaスコープのメタEIP                                | Fusakaアップデートで扱う範囲・対象を定義                                                                                                  |
 
 ## 新技術 **PeerDAS**
-Fusaka アップデートにおける一番の目玉機能とされている、PeerDASがどのような技術であるのか、概要から説明します。
+
+Fusaka アップデートにおける一番の目玉機能とされている、PeerDAS がどのような技術なのか、概要から説明します。
 
 ### PeerDASの概要
 
@@ -82,13 +83,13 @@ Fusaka アップデートにおける一番の目玉機能とされている、P
 
 - 1 ブロック内には最大 48 個の Blob データが存在する
 - 1Blob(最大 128kB)を 64 に分割し、セル(最大 2kB)と呼ぶ
-- Blobあたりのデータを符号化し、128セルのデータに変換
-※ 符号化とは、多項式化を指します。ここでは、Blob の64セルごとのデータ($[m_0, m_1, ..., m_63]$)を使って、次のような63次の多項式を生成します
-$$f(x) = m_0 + m_1 x + m_2 x^2 + ... m_63 x^63 = \sum_{i=0}^{63} m_i x^i$$
-この際、128セルのデータへの変換は、$[f(0), f(2), ..., f(127)]$ を行います。直観的にもイメージがつくように、未知数の数と同じだけの数の値(今回の場合は、64個)があれば、方程式として解くことができ、任意のxに対して、 $f(x)$ を求めることができます。その後、係数部分を抜き出して、元々の Blob データを復元できます。
-符号化を行うことにより、元々は 64セル のデータを逃さず取得しきらないと、 Blob を復元できなかったことに対して、 64/128 だけ取得できれば、 Blob を復元できるようになりました。
+- Blob あたりのデータを符号化し、128 セルのデータに変換
+  ※ 符号化とは、多項式化を指します。ここでは、Blob の 64 セルごとのデータ($[m_0, m_1, ..., m_63]$)を使って、次のような 63 次の多項式を生成します
+  $$f(x) = m_0 + m_1 x + m_2 x^2 + ... m_63 x^63 = \sum_{i=0}^{63} m_i x^i$$
+  128 セルのデータへの変換は、$[f(0), f(2), ..., f(127)]$ を行います。直観的にもイメージがつくように、未知数の数と同じだけの数の値(今回の場合は、64 個)があれば、方程式として解くことができます。解くことにより、任意の x に対して、 $f(x)$ を求めることができます。その後、係数部分を抜き出すことで、元々の Blob データを復元できます。
+  符号化を行うことにより、元々は 64 セルのデータを逃さず取得しなければ Blob を復元できなかったことに対し、 64/128 だけ取得できれば、 Blob を復元できるようになりました。
 
-符号化の説明は長かったと思いますが、PeerDASについて、処理を以下の流れで説明します。
+PeerDAS について、処理を以下の流れで説明します。
 
 1. Blob の分割とノードへの割り当て
 1. コンセンサスのステップに従ったノードの PeerDAS 処理
@@ -100,13 +101,13 @@ $$f(x) = m_0 + m_1 x + m_2 x^2 + ... m_63 x^63 = \sum_{i=0}^{63} m_i x^i$$
 
 ![Blobの分割](/images/fusaka-update-intro/peerdas02.png)
 
-それぞれの列を Subnet と呼称し、 `担当 Subnet 数 = ノードの合計ステークETH / 32 ETH ` で計算される担当 Subnet 数のSubnetだけ、 Blob データのダウンロード・検証・保管・P2P での発出が必要となります。また、NodeIDからそのノードが処理する Subnet がリスト形式で一意に生成できる(`[1,2,3,...,128]`のようなリスト。最初の要素から用いる)ため、 NodeID と担当 Subnet 数がわかれば、そのノードがどの Subnet を処理する必要があるか、特定できます。
-わかりやすくするため、いくつかの合計ステークETHの段階に分けて、担当 Subnet 数を計算すると、以下のようになります：
+それぞれの列を Subnet と呼称し、 `担当 Subnet 数 = ノードの合計ステークETH / 32 ETH` で計算される担当 Subnet 数の Subnet だけ、 Blob データのダウンロード・検証・保管・P2P での発出が必要となります。また、NodeID からそのノードが処理する Subnet がリスト形式で一意に生成できる(`[1,2,3,...,128]` のようなリスト。最初の要素から用いる)ため、 NodeID と担当 Subnet 数がわかれば、そのノードがどの Subnet を処理する必要があるか、特定できます。
+わかりやすくするため、いくつかの合計ステーク ETH の段階に分けて、担当 Subnet 数を計算すると、以下のようになります。
 
 - フルノード(ステーク 0ETH)：4 Subnet
 - ソロバリデータ(ステーク 32ETH)：8 Subnet
 - 中型バリデータ(ステーク 2048ETH)：64 Subnet
-- 大型バリデータ(ステーク 4096ETH = 2048ETH のバリデータx 2 台)：128 Subnet(全 Subnet )
+- 大型バリデータ(ステーク 4096ETH = 2048ETH のバリデータ x 2 台)：128 Subnet(全 Subnet )
 
 全ての Subnet のデータを提供するノードを、Supernode と呼びます。また中型バリデータは 64 Subnet となっており、前提で述べたように、符号化されているため、中型バリデータ以上は全 Subnet データを復元できます。
 
@@ -116,7 +117,7 @@ PeerDAS は、ビーコンチェーンで次のように処理される。フェ
 
 1. ブロックデータ生成・送信フェーズ(0~4 秒)
    ブロックプロポーザーは全ての Blob データを集約し、ブロックデータを生成します。その後、Gossip プロトコルでピアに共有します。ブロックプロポーザーが実際に行う作業は、以下の通りです。
-   - Blob データを 符号化し、 blob 数の行×128 列の行列に変換する
+   - Blob データを符号化し、 blob 数の行×128 列の行列に変換する
    - Blob ごとに KZG コミットメント・KZG 証明を発行する
    - ブロックデータ・Blob データをピアに送信する
 2. ブロックデータの受信・署名フェーズ(4~8 秒)
@@ -246,12 +247,12 @@ Fusaka アップグレードは、Ethereum のスケーラビリティにおい�
 
 ### 参考文献
 
-本稿は、以下の参考資料を元に作成しています。詳しく理解したい方は、こちらをご確認ください。
+本稿は、以下の参考資料を元に作成しています。詳しく理解したいほうは、こちらをご確認ください。
 
-1. Emmanuel Nalepa（HackMD）「PeerDAS」<https://hackmd.io/@manunalepa/peerDAS>（参照日：2025年10月20日）
-1. Ethereum Foundation（ethereum.org）「PeerDAS」<https://ethereum.org/ja/roadmap/fusaka/peerdas/#peer-das>（参照日：2025年10月20日）
-1. Sigma Prime（Sigma Prime Blog）「Scaling Ethereum with PeerDAS and Distributed Blob Building」<https://blog.sigmaprime.io/peerdas-distributed-blob-building.html>（参照日：2025年10月20日）
-1. EthPandaOps（EthPandaOps Blog）「Fusaka bandwidth estimation」<https://ethpandaops.io/posts/fusaka-bandwidth-estimation>（参照日：2025年10月20日）
-1. EthPandaOps（EthPandaOps Blog）「Fusaka devnet-5 BPO analysis」<https://ethpandaops.io/posts/fusaka-devnet-5-bpo-analysis>（参照日：2025年10月20日）
-1. Gaudiy Web3 Lab（Medium）「PeerDAS: Solving Ethereum’s Data Availability Problem」<https://medium.com/gaudiy-web3-lab/3ace46a3a9af>（参照日：2025年10月20日）
-1. Paradigm（Paradigm Blog）「Time, slots, and the ordering of events in Ethereum Proof-of-Stake」<https://www.paradigm.xyz/2023/04/mev-boost-ethereum-consensus>（参照日：2025年10月20日）
+1. Emmanuel Nalepa（HackMD）「PeerDAS」<https://hackmd.io/@manunalepa/peerDAS>（参照日：2025 年 10 月 20 日）
+1. Ethereum Foundation（ethereum.org）「PeerDAS」<https://ethereum.org/ja/roadmap/fusaka/peerdas/#peer-das>（参照日：2025 年 10 月 20 日）
+1. Sigma Prime（Sigma Prime Blog）「Scaling Ethereum with PeerDAS and Distributed Blob Building」<https://blog.sigmaprime.io/peerdas-distributed-blob-building.html>（参照日：2025 年 10 月 20 日）
+1. EthPandaOps（EthPandaOps Blog）「Fusaka bandwidth estimation」<https://ethpandaops.io/posts/fusaka-bandwidth-estimation>（参照日：2025 年 10 月 20 日）
+1. EthPandaOps（EthPandaOps Blog）「Fusaka devnet-5 BPO analysis」<https://ethpandaops.io/posts/fusaka-devnet-5-bpo-analysis>（参照日：2025 年 10 月 20 日）
+1. Gaudiy Web3 Lab（Medium）「PeerDAS: Solving Ethereum’s Data Availability Problem」<https://medium.com/gaudiy-web3-lab/3ace46a3a9af>（参照日：2025 年 10 月 20 日）
+1. Paradigm（Paradigm Blog）「Time, slots, and the ordering of events in Ethereum Proof-of-Stake」<https://www.paradigm.xyz/2023/04/mev-boost-ethereum-consensus>（参照日：2025 年 10 月 20 日）
