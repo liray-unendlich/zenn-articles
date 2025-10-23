@@ -127,6 +127,7 @@ PeerDAS は、ビーコンチェーンで次のように処理される。フェ
 下図は上の計算手法において、ブロックプロポーザーが、3 秒以内に 8 つのピアに Blob データを送信することを想定したときの Blob 数ごとに必要となる帯域幅を示しています。
 
 ![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas03.png)
+_出典: [Fusaka bandwidth estimation by ethPandaOps](https://ethpandaops.io/posts/fusaka-bandwidth-estimation)_
 
 ## 重要なEIPの詳細
 
@@ -134,6 +135,7 @@ PeerDAS は、ビーコンチェーンで次のように処理される。フェ
 
 Pectra の実装(2025/5/7)以降、blob のターゲット数（最低手数料で利用できる数）は 6 つとなっており、直近においては、相場の急変動もあり、90%以上の利用率となっています。追加の手数料を払うことで、最大 9 個までの blob を同一ブロックに格納できますが、さらに L2 が活発に利用されることを念頭に置けば、Blob の上限数・ターゲット数を継続的に増加させる必要があります。下の図は、4 月 14 日以降の日次での Blob 利用状況を示したものです。42K に赤線を入れているのは、blob のターゲット数×1 日の ethereum ブロック数での、1 日のターゲット blob 数を示すためです。徐々に日次でのターゲット blob 数には近づいてきているのが見て取れます。
 ![Blob利用の推移](/images/fusaka-update-intro/dailyblobcount.png)
+_出典: [Daily Blobs by blobscan](https://blobscan.com)_
 
 そこで今回実装されるのが、Blob のパラメータのみを更新する新たな種類のフォーク Blob Parameter Only Hardforks(BPO と呼ぶ)です。BPO により、以下のスケジュールで Blob のターゲット・最大値等のパラメータは段階的に上げられることになります。従来のハードフォークタイミングよりも高速にパラメータを上げていくことで、市場の拡大にも耐えつつ Fusaka アップデート・BPO の影響をモニタしながら、パラメータを上げていくためです。PeerDAS の実装に伴い、より Blob のターゲット・最大値を大きくできるようになったので、Fusaka アップデートに組み込まれています。
 
@@ -151,9 +153,11 @@ Pectra の実装(2025/5/7)以降、blob のターゲット数（最低手数料�
 
 Ethereum のブロックガス上限は、7 月 21 日に 45M まで引き上げられたばかりです。直近においては、平均ガス利用率は下図の通り 50%ほどとなっており、トランザクション処理には余裕がある現状です。
 ![ガス利用量の推移](/images/fusaka-update-intro/average-gas-usage.png)
+_出典: [Average gas limit by Blockscout](https://eth.blockscout.com/stats/averageGasLimit)_
 
 しかしながら、ブロックによって利用率 90%を超えており、下図の 6 か月間の平均ガス価格からもわかるように、ガス代にも影響が出ていることに変わらず継続した取り組みとなっています。
 ![ガス代の平均値推移](/images/fusaka-update-intro/average-gas-price.png)
+_出典: [Average gas price by Blockscout](https://eth.blockscout.com/stats/txnsFee)_
 
 Fusaka アップデートでは、**ブロックガス上限を60Mに引き上げます(EIP-7935)** 。当然のことながら、この引き上げにより、スループットの向上、ガス価格の安定化が見込まれます。
 
@@ -186,6 +190,7 @@ PeerDAS の実装により、Fusaka アップデート後では、ステーク�
 ![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas06.png)
 1024ETH をステークしているバリデータの Blob 数ごとのブロック提案時のデータ送信速度
 ![バリデータに必要となる帯域幅](/images/fusaka-update-intro/peerdas07.png)
+_出典: [Fusaka bandwidth estimation by ethPandaOps](https://ethpandaops.io/posts/fusaka-bandwidth-estimation)_
 
 ~320ETH までのステークにおいては、20Blob を超えたとしても、ストレージ利用量は Fusaka アップデートより依然として低くなっています。問題となるのは、ブロック提案時の帯域幅です。ブロック提案においては、全 Blob データを集約し、署名のためピアに提供しなければならないため、Blob 数が増えるほど帯域幅が必要となります。一部のクライアントにおいては、EL から Blob データを受信して処理するなどの仕組みが実装されていたり、`--max-blobs` のような上限 blob 数を既定するフラグを実装している場合があるため、帯域幅の制限が想定される場合は、クライアントの機能をよく確認されることをお勧めします。
 
