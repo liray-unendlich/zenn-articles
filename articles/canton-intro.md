@@ -239,7 +239,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    GS["Global Synchronizer (GS)<br>= 公開同期ドメイン（分散型 vCSP）<br>--------------------------------------<br>運営主体: Super Validator<br>• BFT Sequencer（順序付け）<br>• BFT Mediator（2相コミット調整）<br>※ メッセージ内容は見ない（暗号化）"]
+    GS["Global Synchronizer (GS)<br>= 公開同期ドメイン（分散型 vCSP）<br>---------------------------------<br>運営主体: Super Validator<br>• BFT Sequencer（順序付け）<br>• BFT Mediator（2相コミット調整）<br>※ メッセージ内容は見ない（暗号化）"]
 
     GS --> DomainA
     GS --> DomainB
