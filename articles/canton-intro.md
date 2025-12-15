@@ -239,7 +239,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    GS["Global Synchronizer (GS)<br>= 公開同期ドメイン（分散型 vCSP）<br>---------------------------------------------<br>運営主体: Super Validator<br>• BFT Sequencer（順序付け）<br>• BFT Mediator（2相コミット調整）<br>※ メッセージ内容は見ない（暗号化）"]
+    GS["Global Synchronizer (GS)<br>= 公開同期ドメイン（分散型 vCSP）<br>--------------------------------------<br>運営主体: Super Validator<br>• BFT Sequencer（順序付け）<br>• BFT Mediator（2相コミット調整）<br>※ メッセージ内容は見ない（暗号化）"]
 
     GS --> DomainA
     GS --> DomainB
@@ -377,7 +377,7 @@ sequenceDiagram
 
 
     %% 4. アリスがステーブルコイン残高取得コントラクトを消費
-    rect rgba(163, 163, 163, 1)
+    rect rgba(212, 212, 212, 1)
     Alice ->> Alice: ④-1 ステーブルコイン残高取得(Exercise)
 
     %% 5. アリスが自身のステーブルコイン残高を取得
@@ -385,7 +385,7 @@ sequenceDiagram
     end
 
     %% 6. ディーラーが引き換えコントラクトを消費
-    rect rgba(163, 163, 163, 1)
+    rect rgba(212, 212, 212, 1)
     Dealer ->> Alice: ⑤-1 引き換えコントラクト消費(Exercise)
 
     %% 7. ディーラーが銀行A発行コントラクトを消費
@@ -416,7 +416,7 @@ sequenceDiagram
     Alice ->> Alice: ③ ステーブルコイン消費状況取得コントラクト作成(Create)
 
     %% 4. アリスがステーブルコイン残高取得コントラクトを消費
-    rect rgba(163, 163, 163, 1)
+    rect rgba(212, 212, 212, 1)
     Alice ->> Alice: ④-1 ステーブルコイン残高取得(Exercise)
 
     %% 5. アリスが自身のステーブルコイン残高を取得
@@ -424,7 +424,7 @@ sequenceDiagram
     end
 
     %% 6. ディーラーが引き換えコントラクトを消費
-    rect rgba(163, 163, 163, 1)
+    rect rgba(212, 212, 212, 1)
     Dealer ->> Alice: ⑤-1 引き換えコントラクト消費(Exercise)
 
     %% 7. ディーラーが銀行A発行コントラクトを消費
@@ -459,7 +459,7 @@ sequenceDiagram
 
 
     %% 4. アリスがステーブルコイン残高取得コントラクトを消費
-    rect rgba(163, 163, 163, 1)
+    rect rgba(212, 212, 212, 1)
     Alice ->> Alice: ④-1 ステーブルコイン残高取得(Exercise)
 
     %% 5. アリスが自身のステーブルコイン残高を取得
@@ -467,7 +467,7 @@ sequenceDiagram
     end
 
     %% 6. ディーラーが引き換えコントラクトを消費
-    rect rgba(163, 163, 163, 1)
+    rect rgba(212, 212, 212, 1)
     Dealer ->> Alice: ⑤-1 引き換えコントラクト消費(Exercise)
 
     %% 7. ディーラーが銀行A発行コントラクトを消費
