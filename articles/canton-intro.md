@@ -203,7 +203,7 @@ Canton Network を Ethereum と比較すると、次のような差異があり�
 
 ```mermaid
 flowchart TD
-    EthMainnet["Ethereum Mainnet<br>（**単一のグローバル台帳**）<br>• Validator Set（バリデータ）<br>• Block Proposer（提案者）<br>• MEV Supply Chain<br>　- Searchers（アービトラージ等）<br>　- Builders（ブロック構築）<br>　- Relayers（ブロック中継）"]
+    EthMainnet["Ethereum Mainnet<br>（**単一のグローバル台帳**）<br>• Validator Set（バリデータ）<br>• Block Proposer（提案者）<br>- MEV Searchers（アービトラージ等）<br>- MEV Builders（ブロック構築）<br>- MEV Relayers（ブロック中継）"]
 
     EthMainnet --> FullNode["Full Node<br>（履歴保持）<br>--------------------<br>検証・同期・状態管理"]
     EthMainnet --> RPCNode["RPC Node<br>（API提供）<br>--------------------<br>TX送信・読取 API"]
