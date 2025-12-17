@@ -1,5 +1,5 @@
 ---
-title: "分散型「金融」チェーンを探る、Canton Networkの概要と強み"
+title: "分散型「金融機関向けネットワーク」を探る、Canton Networkの概要と強み"
 emoji: "🦁"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Canton Network", "暗号資産", "RWA", "DeFi", "ブロックチェーン"]
