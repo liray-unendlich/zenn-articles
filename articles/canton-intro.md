@@ -3,8 +3,9 @@ title: "分散型「金融」チェーンを探る、Canton Networkの概要と�
 emoji: "🦁"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Canton Network", "暗号資産", "RWA", "DeFi", "ブロックチェーン"]
-published: false
+published: true
 publication_name: omakase
+published_at: 2025-12-18 13:00
 ---
 
 ## 本記事の概要
